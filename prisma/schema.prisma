@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      String   @default("DRIVER") // "DRIVER" or "ADMIN"
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id             String   @id @default(uuid())
+  driverName     String
+  plateNumber    String
+  bbm            Float
+  odoMeter       Int
+  deliveryReport String
+  createdAt      DateTime @default(now())
+}
+
+model KilometerReport {
+  id            String   @id @default(uuid())
+  idUnit        String
+  tanggal       DateTime
+  kmAwal        Float
+  kmAkhir       Float
+  totalKm       Float
+  
+  driverName    String
+  createdAt     DateTime @default(now())
+}
+
+model BbmReport {
+  id             String   @id @default(uuid())
+  id_unit        String
+  tanggal_bbm    DateTime
+  waktu          String
+  spbu           String?  // Boleh kosong atau text
+  kota_kab       String
+  jenis          String
+  liter          Float
+  total_bayar    Int
+  waktu_upload   DateTime @default(now())
+}
+
+model PengantaranReport {
+  id               String   @id @default(uuid())
+  idUnit           String
+  tanggal          DateTime
+  namaDriver       String
+  trip             String
+  startLoading     String
+  endLoading       String
+  totalPengantaran Int
+  suksesKirim      Int
+  gagalKirim       Int
+  omset            Float
+  catatan          String?
+  
+  submittedBy      String
+  createdAt        DateTime @default(now())
+}
+
+model Armada {
+  id        String   @id @default(uuid())
+  idUnit    String   @unique
+  createdAt DateTime @default(now())
+}
