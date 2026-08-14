@@ -273,7 +273,7 @@ export default function DriverPage() {
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ID Unit</label>
                   <select
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={idUnit}
                     onChange={(e) => setIdUnit(e.target.value)}
                     required
@@ -288,7 +288,7 @@ export default function DriverPage() {
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Tanggal BBM</label>
                   <input
                     type="date"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={tanggalBbm}
                     onChange={(e) => setTanggalBbm(e.target.value)}
                     required
@@ -298,7 +298,7 @@ export default function DriverPage() {
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Waktu</label>
                   <input
                     type="time"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={waktu}
                     onChange={(e) => setWaktu(e.target.value)}
                     required
@@ -308,7 +308,7 @@ export default function DriverPage() {
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">SPBU (Opsional)</label>
                   <input
                     type="text"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={spbu}
                     onChange={(e) => setSpbu(e.target.value)}
                     placeholder="Nama atau Kode SPBU"
@@ -318,7 +318,7 @@ export default function DriverPage() {
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Kota/Kabupaten</label>
                   <input
                     type="text"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={kotaKabupaten}
                     onChange={(e) => setKotaKabupaten(e.target.value)}
                     placeholder="Contoh: Jakarta Selatan"
@@ -328,7 +328,7 @@ export default function DriverPage() {
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Jenis BBM</label>
                   <select
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all"
                     value={jenis}
                     onChange={(e) => setJenis(e.target.value)}
                     required
@@ -345,7 +345,7 @@ export default function DriverPage() {
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={volume}
                     onChange={(e) => setVolume(e.target.value)}
                     placeholder="0.0"
@@ -361,7 +361,7 @@ export default function DriverPage() {
                     <input
                       type="text"
                       inputMode="numeric"
-                      className="w-full rounded-xl border border-gray-200 pl-12 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 pl-12 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                       value={totalBayar}
                       onChange={(e) => setTotalBayar(formatRibuan(e.target.value))}
                       placeholder="0"
@@ -396,7 +396,7 @@ export default function DriverPage() {
                 <div className="md:col-span-2">
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ID Unit</label>
                   <select
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={kmIdUnit}
                     onChange={(e) => setKmIdUnit(e.target.value)}
                     required
@@ -411,7 +411,7 @@ export default function DriverPage() {
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Tanggal</label>
                   <input
                     type="date"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                     value={kmTanggal}
                     onChange={(e) => setKmTanggal(e.target.value)}
                     required
@@ -423,7 +423,7 @@ export default function DriverPage() {
                     <input
                       type="number"
                       step="0.1"
-                      className="w-full rounded-xl border border-gray-200 px-4 pr-12 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 pr-12 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                       value={kmAwal}
                       onChange={(e) => setKmAwal(e.target.value)}
                       placeholder="0"
@@ -440,7 +440,7 @@ export default function DriverPage() {
                     <input
                       type="number"
                       step="0.1"
-                      className="w-full rounded-xl border border-gray-200 px-4 pr-12 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 pr-12 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                       value={kmAkhir}
                       onChange={(e) => setKmAkhir(e.target.value)}
                       placeholder="0"
@@ -489,7 +489,7 @@ export default function DriverPage() {
                     required 
                     value={pengIdUnit} 
                     onChange={e => setPengIdUnit(e.target.value)} 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all"
                   >
                     <option value="" disabled>Pilih ID Unit</option>
                     {armadaList.map((armada, i) => (
@@ -504,7 +504,7 @@ export default function DriverPage() {
                     required 
                     value={pengTanggal} 
                     onChange={e => setPengTanggal(e.target.value)} 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -515,7 +515,7 @@ export default function DriverPage() {
                     value={pengTrip} 
                     onChange={e => setPengTrip(e.target.value)} 
                     placeholder="Contoh: Trip 1" 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
                 <div>
@@ -525,7 +525,7 @@ export default function DriverPage() {
                     required 
                     value={pengStartLoading} 
                     onChange={e => setPengStartLoading(e.target.value)} 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
                 <div>
@@ -535,7 +535,7 @@ export default function DriverPage() {
                     required 
                     value={pengEndLoading} 
                     onChange={e => setPengEndLoading(e.target.value)} 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
               </div>
@@ -549,7 +549,7 @@ export default function DriverPage() {
                     value={pengSuksesKirim} 
                     onChange={e => setPengSuksesKirim(e.target.value)} 
                     placeholder="0" 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all" 
                   />
                 </div>
                 <div>
@@ -560,7 +560,7 @@ export default function DriverPage() {
                     value={pengGagalKirim} 
                     onChange={e => setPengGagalKirim(e.target.value)} 
                     placeholder="0" 
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white transition-all" 
                   />
                 </div>
                 <div className="col-span-2 pt-4 border-t border-blue-200/50 flex justify-between items-center">
@@ -583,7 +583,7 @@ export default function DriverPage() {
                     required 
                     value={pengOmset} 
                     onChange={e => setPengOmset(formatRibuan(e.target.value))} 
-                    className="w-full rounded-xl border border-gray-200 pl-12 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 pl-12 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                     placeholder="0"
                   />
                 </div>
@@ -594,7 +594,7 @@ export default function DriverPage() {
                 <textarea 
                   value={pengCatatan} 
                   onChange={e => setPengCatatan(e.target.value)} 
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all min-h-[80px]" 
+                  className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all min-h-[80px]" 
                   placeholder="Isi alasan jika ada gagal kirim..."
                 />
               </div>
