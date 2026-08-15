@@ -523,7 +523,7 @@ export default function DriverPage() {
                     className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4 col-span-2">
+                <div className="grid grid-cols-2 gap-4 md:col-span-2">
                   <div>
                     <label className="mb-1.5 block text-sm font-semibold text-gray-700">Mulai Muat Barang</label>
                     <input 
@@ -546,7 +546,7 @@ export default function DriverPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 col-span-2">
+                <div className="grid grid-cols-2 gap-4 md:col-span-2">
                   <div>
                     <label className="mb-1.5 block text-sm font-semibold text-gray-700">Mulai Pengantaran</label>
                     <input 
