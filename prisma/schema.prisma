@@ -62,6 +62,8 @@ model PengantaranReport {
   trip             String
   startLoading     String
   endLoading       String
+  startPengantaran String?
+  finishPengantaran String?
   totalPengantaran Int
   suksesKirim      Int
   gagalKirim       Int

@@ -28,6 +28,8 @@ export default function DriverPage() {
   const [pengTrip, setPengTrip] = useState('')
   const [pengStartLoading, setPengStartLoading] = useState('')
   const [pengEndLoading, setPengEndLoading] = useState('')
+  const [pengStartPengantaran, setPengStartPengantaran] = useState('')
+  const [pengFinishPengantaran, setPengFinishPengantaran] = useState('')
   const [pengSuksesKirim, setPengSuksesKirim] = useState('')
   const [pengGagalKirim, setPengGagalKirim] = useState('')
   const [pengOmset, setPengOmset] = useState('')
@@ -158,6 +160,8 @@ export default function DriverPage() {
           trip: pengTrip,
           startLoading: pengStartLoading,
           endLoading: pengEndLoading,
+          startPengantaran: pengStartPengantaran,
+          finishPengantaran: pengFinishPengantaran,
           suksesKirim: pengSuksesKirim,
           gagalKirim: pengGagalKirim,
           omset: pengOmset.replace(/\./g, ''),
@@ -171,6 +175,8 @@ export default function DriverPage() {
         setPengTrip('')
         setPengStartLoading('')
         setPengEndLoading('')
+        setPengStartPengantaran('')
+        setPengFinishPengantaran('')
         setPengSuksesKirim('')
         setPengGagalKirim('')
         setPengOmset('')
@@ -517,6 +523,50 @@ export default function DriverPage() {
                     className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-4 col-span-2">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-gray-700">Mulai Muat Barang</label>
+                    <input 
+                      type="time" 
+                      required 
+                      value={pengStartLoading} 
+                      onChange={e => setPengStartLoading(e.target.value)} 
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-gray-700">Selesai Muat Barang</label>
+                    <input 
+                      type="time" 
+                      required 
+                      value={pengEndLoading} 
+                      onChange={e => setPengEndLoading(e.target.value)} 
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 col-span-2">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-gray-700">Mulai Pengantaran</label>
+                    <input 
+                      type="time" 
+                      value={pengStartPengantaran} 
+                      onChange={e => setPengStartPengantaran(e.target.value)} 
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-gray-700">Selesai Pengantaran</label>
+                    <input 
+                      type="time" 
+                      value={pengFinishPengantaran} 
+                      onChange={e => setPengFinishPengantaran(e.target.value)} 
+                      className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
+                    />
+                  </div>
+                </div>
+                
                 <div className="md:col-span-2">
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Trip</label>
                   <input 
@@ -528,26 +578,7 @@ export default function DriverPage() {
                     className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
                   />
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-gray-700">Start Loading</label>
-                  <input 
-                    type="time" 
-                    required 
-                    value={pengStartLoading} 
-                    onChange={e => setPengStartLoading(e.target.value)} 
-                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-gray-700">End Loading</label>
-                  <input 
-                    type="time" 
-                    required 
-                    value={pengEndLoading} 
-                    onChange={e => setPengEndLoading(e.target.value)} 
-                    className="w-full rounded-xl text-gray-900 font-semibold border border-gray-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 transition-all" 
-                  />
-                </div>
+
               </div>
               
               <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50 grid grid-cols-2 gap-5 mt-2">
@@ -672,7 +703,10 @@ export default function DriverPage() {
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">ID Unit:</span> <span className="font-bold text-gray-900">{pengIdUnit}</span></div>
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Tanggal:</span> <span className="font-bold text-gray-900">{pengTanggal}</span></div>
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Trip:</span> <span className="font-bold text-gray-900">{pengTrip}</span></div>
-                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Waktu Loading:</span> <span className="font-bold text-gray-900">{pengStartLoading} - {pengEndLoading}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Waktu Muat Barang:</span> <span className="font-bold text-gray-900">{pengStartLoading} - {pengEndLoading}</span></div>
+                  {(pengStartPengantaran || pengFinishPengantaran) && (
+                    <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Waktu Pengantaran:</span> <span className="font-bold text-gray-900">{pengStartPengantaran || '-'} - {pengFinishPengantaran || '-'}</span></div>
+                  )}
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Sukses Kirim:</span> <span className="font-bold text-green-600">{pengSuksesKirim}</span></div>
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Gagal Kirim:</span> <span className="font-bold text-red-600">{pengGagalKirim}</span></div>
                   <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Total Pengantaran:</span> <span className="font-bold text-blue-600">{(parseInt(pengSuksesKirim || '0') + parseInt(pengGagalKirim || '0')) || 0}</span></div>

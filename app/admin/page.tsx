@@ -215,8 +215,10 @@ export default function AdminPage() {
         'Tanggal': new Date(r.tanggal).toLocaleDateString('id-ID'),
         'Nama Driver': r.namaDriver,
         'Trip': r.trip,
-        'Start Loading': r.startLoading,
-        'End Loading': r.endLoading,
+        'Mulai Muat Barang': r.startLoading,
+        'Selesai Muat Barang': r.endLoading,
+        'Mulai Pengantaran': r.startPengantaran || '-',
+        'Selesai Pengantaran': r.finishPengantaran || '-',
         'Total Pengantaran': r.totalPengantaran,
         'Sukses Kirim': r.suksesKirim,
         'Gagal Kirim': r.gagalKirim,
@@ -343,7 +345,7 @@ export default function AdminPage() {
 
       {/* Main Content */}
       <div className="flex-1 p-4 lg:p-10 overflow-y-auto w-full max-w-[100vw]">
-        <div className="mx-auto max-w-6xl rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div className="mx-auto w-full rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-white border-b border-gray-100 p-4 lg:p-8 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
             <div>
               <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">
@@ -421,25 +423,25 @@ export default function AdminPage() {
                     <tr>
                       {activeMenu === 'BBM' && (
                         <>
-                          <th className="px-4 py-3 whitespace-nowrap">ID Unit</th>
-                          <th className="px-4 py-3 whitespace-nowrap">Tanggal BBM</th>
-                          <th className="px-4 py-3 whitespace-nowrap">Waktu</th>
-                          <th className="px-4 py-3 whitespace-nowrap">SPBU</th>
-                          <th className="px-4 py-3 whitespace-nowrap">Kota/Kab</th>
-                          <th className="px-4 py-3 whitespace-nowrap">Jenis</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-right">Volume</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-right">Total Bayar</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-center">Aksi</th>
+                          <th className="px-2 py-2 whitespace-nowrap">ID Unit</th>
+                          <th className="px-2 py-2 whitespace-nowrap">Tanggal BBM</th>
+                          <th className="px-2 py-2 whitespace-nowrap">Waktu</th>
+                          <th className="px-2 py-2 whitespace-nowrap">SPBU</th>
+                          <th className="px-2 py-2 whitespace-nowrap">Kota/Kab</th>
+                          <th className="px-2 py-2 whitespace-nowrap">Jenis</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-right">Volume</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-right">Total Bayar</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-center">Aksi</th>
                         </>
                       )}
                       {activeMenu === 'KILOMETER' && (
                         <>
-                          <th className="px-4 py-3 whitespace-nowrap">ID Unit</th>
-                          <th className="px-4 py-3 whitespace-nowrap">Tanggal</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-right">KM Awal</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-right">KM Akhir</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-right">Total KM</th>
-                          <th className="px-4 py-3 whitespace-nowrap text-center">Aksi</th>
+                          <th className="px-2 py-2 whitespace-nowrap">ID Unit</th>
+                          <th className="px-2 py-2 whitespace-nowrap">Tanggal</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-right">KM Awal</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-right">KM Akhir</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-right">Total KM</th>
+                          <th className="px-2 py-2 whitespace-nowrap text-center">Aksi</th>
                         </>
                       )}
                     </tr>
@@ -450,16 +452,16 @@ export default function AdminPage() {
                     )}
                     {activeMenu === 'BBM' && filteredBbm.map((report) => (
                       <tr key={report.id} className="hover:bg-blue-50/50 transition-colors group">
-                        <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{report.id_unit}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{new Date(report.tanggal_bbm).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{report.waktu}</td>
-                        <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{report.spbu || '-'}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{report.kota_kab}</td>
-                        <td className="px-4 py-3 whitespace-nowrap"><span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">{report.jenis}</span></td>
-                        <td className="px-4 py-3 text-right font-medium whitespace-nowrap">{report.liter} L</td>
-                        <td className="px-4 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">Rp {report.total_bayar.toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-center whitespace-nowrap">
-                          <button onClick={() => handleDeleteBbm(report.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg">Hapus</button>
+                        <td className="px-2 py-2 text-xs font-medium text-gray-900 whitespace-nowrap">{report.id_unit}</td>
+                        <td className="px-2 py-2 text-xs whitespace-nowrap">{new Date(report.tanggal_bbm).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
+                        <td className="px-2 py-2 text-xs whitespace-nowrap">{report.waktu}</td>
+                        <td className="px-2 py-2 text-xs text-gray-500 whitespace-nowrap">{report.spbu || '-'}</td>
+                        <td className="px-2 py-2 text-xs whitespace-nowrap">{report.kota_kab}</td>
+                        <td className="px-2 py-2 text-xs whitespace-nowrap"><span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800">{report.jenis}</span></td>
+                        <td className="px-2 py-2 text-xs text-right font-medium whitespace-nowrap">{report.liter} L</td>
+                        <td className="px-2 py-2 text-xs text-right font-semibold text-gray-900 whitespace-nowrap">Rp {report.total_bayar.toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">
+                          <button onClick={() => handleDeleteBbm(report.id)} className="text-red-500 hover:text-red-700 text-[10px] font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Hapus</button>
                         </td>
                       </tr>
                     ))}
@@ -468,13 +470,13 @@ export default function AdminPage() {
                     )}
                     {activeMenu === 'KILOMETER' && filteredKm.map((report) => (
                       <tr key={report.id} className="hover:bg-blue-50/50 transition-colors group">
-                        <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{report.idUnit}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{new Date(report.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
-                        <td className="px-4 py-3 text-right text-gray-500 whitespace-nowrap">{report.kmAwal.toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-right text-gray-500 whitespace-nowrap">{report.kmAkhir.toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-right font-bold text-blue-600 whitespace-nowrap">{report.totalKm.toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-center whitespace-nowrap">
-                          <button onClick={() => handleDeleteKm(report.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg">Hapus</button>
+                        <td className="px-2 py-2 text-xs font-medium text-gray-900 whitespace-nowrap">{report.idUnit}</td>
+                        <td className="px-2 py-2 text-xs whitespace-nowrap">{new Date(report.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
+                        <td className="px-2 py-2 text-xs text-right text-gray-500 whitespace-nowrap">{report.kmAwal.toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-2 text-xs text-right text-gray-500 whitespace-nowrap">{report.kmAkhir.toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-2 text-xs text-right font-bold text-blue-600 whitespace-nowrap">{report.totalKm.toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">
+                          <button onClick={() => handleDeleteKm(report.id)} className="text-red-500 hover:text-red-700 text-[10px] font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Hapus</button>
                         </td>
                       </tr>
                     ))}
@@ -486,17 +488,18 @@ export default function AdminPage() {
                 <table className="w-full text-left text-sm text-gray-600 border-collapse min-w-max">
                   <thead className="bg-gray-50/80 uppercase text-[11px] font-bold tracking-wider text-gray-700 border-b border-gray-200">
                     <tr>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap">ID Unit</th>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap">Tanggal</th>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap">Nama Driver</th>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap">Trip</th>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap" colSpan={2}>Waktu (Start-End)</th>
-                      <th className="px-4 py-3 text-center border-r border-gray-200/50 bg-blue-50/50 text-blue-800 whitespace-nowrap">Total Antar</th>
-                      <th className="px-4 py-3 text-center border-r border-gray-200/50 bg-green-50/50 text-green-800 whitespace-nowrap">Sukses</th>
-                      <th className="px-4 py-3 text-center border-r border-gray-200/50 bg-red-50/50 text-red-800 whitespace-nowrap">Gagal</th>
-                      <th className="px-4 py-3 text-right border-r border-gray-200/50 whitespace-nowrap">Omset</th>
-                      <th className="px-4 py-3 text-left border-r border-gray-200/50 whitespace-nowrap">Catatan</th>
-                      <th className="px-4 py-3 text-center whitespace-nowrap">Aksi</th>
+                      <th className="px-2 py-2 text-left border-r border-gray-200/50 whitespace-nowrap">ID Unit</th>
+                      <th className="px-2 py-2 text-left border-r border-gray-200/50 whitespace-nowrap">Tanggal</th>
+                      <th className="px-2 py-2 text-left border-r border-gray-200/50 whitespace-nowrap">Nama Driver</th>
+                      <th className="px-2 py-2 text-left border-r border-gray-200/50 whitespace-nowrap">Trip</th>
+                      <th className="px-2 py-2 text-center border-r border-gray-200/50 whitespace-nowrap">Waktu Muat Barang</th>
+                      <th className="px-2 py-2 text-center border-r border-gray-200/50 whitespace-nowrap">Waktu Antar</th>
+                      <th className="px-2 py-2 text-center border-r border-gray-200/50 bg-blue-50/50 text-blue-800 whitespace-nowrap">Total Antar</th>
+                      <th className="px-2 py-2 text-center border-r border-gray-200/50 bg-green-50/50 text-green-800 whitespace-nowrap">Sukses</th>
+                      <th className="px-2 py-2 text-center border-r border-gray-200/50 bg-red-50/50 text-red-800 whitespace-nowrap">Gagal</th>
+                      <th className="px-2 py-2 text-right border-r border-gray-200/50 whitespace-nowrap">Omset</th>
+                      <th className="px-2 py-2 text-left border-r border-gray-200/50">Catatan</th>
+                      <th className="px-2 py-2 text-center whitespace-nowrap">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
@@ -505,19 +508,19 @@ export default function AdminPage() {
                     )}
                     {filteredPengantaran.map((report) => (
                       <tr key={report.id} className="hover:bg-blue-50/50 transition-colors group">
-                        <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900 border-r border-gray-100">{report.idUnit}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm border-r border-gray-100">{new Date(report.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600 border-r border-gray-100 whitespace-nowrap">{report.namaDriver}</td>
-                        <td className="px-4 py-3 text-sm border-r border-gray-100 whitespace-nowrap">{report.trip}</td>
-                        <td className="px-2 py-3 text-sm text-right text-gray-500 whitespace-nowrap">{report.startLoading}</td>
-                        <td className="px-2 py-3 text-sm border-r border-gray-100 text-gray-500 whitespace-nowrap">- {report.endLoading}</td>
-                        <td className="px-4 py-3 text-center text-sm font-black text-blue-600 border-r border-gray-100 bg-blue-50/10 whitespace-nowrap">{report.totalPengantaran}</td>
-                        <td className="px-4 py-3 text-center text-sm text-green-600 font-bold border-r border-gray-100 bg-green-50/10 whitespace-nowrap">{report.suksesKirim}</td>
-                        <td className="px-4 py-3 text-center text-sm text-red-600 font-bold border-r border-gray-100 bg-red-50/10 whitespace-nowrap">{report.gagalKirim}</td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900 border-r border-gray-100 whitespace-nowrap">Rp {report.omset.toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500 border-r border-gray-100 max-w-[200px] truncate" title={report.catatan || ''}>{report.catatan || '-'}</td>
-                        <td className="px-4 py-3 text-center whitespace-nowrap">
-                          <button onClick={() => handleDeletePengantaran(report.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg">Hapus</button>
+                        <td className="px-2 py-2 text-xs font-medium text-gray-900 border-r border-gray-100 whitespace-nowrap">{report.idUnit}</td>
+                        <td className="px-2 py-2 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">{new Date(report.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
+                        <td className="px-2 py-2 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">{report.namaDriver}</td>
+                        <td className="px-2 py-2 text-xs text-gray-600 border-r border-gray-100 whitespace-nowrap">{report.trip}</td>
+                        <td className="px-2 py-2 text-xs text-center text-gray-500 border-r border-gray-100 whitespace-nowrap">{report.startLoading} - {report.endLoading}</td>
+                        <td className="px-2 py-2 text-xs text-center text-gray-500 border-r border-gray-100 whitespace-nowrap">{report.startPengantaran || '-'} - {report.finishPengantaran || '-'}</td>
+                        <td className="px-2 py-2 text-xs text-center font-black text-blue-600 border-r border-gray-100 bg-blue-50/10 whitespace-nowrap">{report.totalPengantaran}</td>
+                        <td className="px-2 py-2 text-xs text-center text-green-600 font-bold border-r border-gray-100 bg-green-50/10 whitespace-nowrap">{report.suksesKirim}</td>
+                        <td className="px-2 py-2 text-xs text-center text-red-600 font-bold border-r border-gray-100 bg-red-50/10 whitespace-nowrap">{report.gagalKirim}</td>
+                        <td className="px-2 py-2 text-xs text-right font-semibold text-gray-900 border-r border-gray-100 whitespace-nowrap">Rp {report.omset.toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-2 text-xs text-gray-500 border-r border-gray-100 line-clamp-2" title={report.catatan || ''}>{report.catatan || '-'}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap">
+                          <button onClick={() => handleDeletePengantaran(report.id)} className="text-red-500 hover:text-red-700 text-[10px] font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Hapus</button>
                         </td>
                       </tr>
                     ))}
