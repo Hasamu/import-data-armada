@@ -33,6 +33,7 @@ export default function DriverPage() {
   const [pengOmset, setPengOmset] = useState('')
   const [pengCatatan, setPengCatatan] = useState('')
   
+  const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -63,8 +64,7 @@ export default function DriverPage() {
 
   const router = useRouter()
 
-  const handleBbmSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const executeBbmSubmit = async () => {
     setLoading(true)
     setMessage('')
     setError('')
@@ -108,8 +108,7 @@ export default function DriverPage() {
     }
   }
 
-  const handleKiloSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const executeKiloSubmit = async () => {
     setLoading(true)
     setMessage('')
     setError('')
@@ -145,8 +144,7 @@ export default function DriverPage() {
     }
   }
 
-  const submitPengantaran = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const executePengantaranSubmit = async () => {
     setLoading(true)
     setMessage('')
     setError('')
@@ -185,6 +183,18 @@ export default function DriverPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setShowConfirm(true)
+  }
+
+  const executeSubmit = () => {
+    setShowConfirm(false)
+    if (activeTab === 'BBM') executeBbmSubmit()
+    else if (activeTab === 'KILOMETER') executeKiloSubmit()
+    else if (activeTab === 'PENGANTARAN') executePengantaranSubmit()
   }
 
   const handleLogout = async () => {
@@ -268,7 +278,7 @@ export default function DriverPage() {
 
           {/* Form Data BBM */}
           {activeTab === 'BBM' && (
-            <form onSubmit={handleBbmSubmit} className="space-y-5">
+            <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ID Unit</label>
@@ -391,7 +401,7 @@ export default function DriverPage() {
 
           {/* Form Data Kilometer */}
           {activeTab === 'KILOMETER' && (
-            <form onSubmit={handleKiloSubmit} className="space-y-5">
+            <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2">
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ID Unit</label>
@@ -481,7 +491,7 @@ export default function DriverPage() {
 
           {/* Form Data PENGANTARAN */}
           {activeTab === 'PENGANTARAN' && (
-            <form onSubmit={submitPengantaran} className="space-y-5">
+            <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ID Unit</label>
@@ -618,6 +628,77 @@ export default function DriverPage() {
           )}
         </div>
       </div>
+
+      {/* Modal Konfirmasi */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 text-center">
+              <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white tracking-wide">Konfirmasi Data</h3>
+              <p className="text-blue-100 text-sm mt-1 font-medium">Pastikan data yang diinput sudah benar</p>
+            </div>
+            
+            <div className="p-6 max-h-[60vh] overflow-y-auto">
+              {activeTab === 'BBM' && (
+                <div className="space-y-3.5 text-sm">
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">ID Unit:</span> <span className="font-bold text-gray-900">{idUnit}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Tanggal BBM:</span> <span className="font-bold text-gray-900">{tanggalBbm}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Waktu:</span> <span className="font-bold text-gray-900">{waktu}</span></div>
+                  {spbu && <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">SPBU:</span> <span className="font-bold text-gray-900">{spbu}</span></div>}
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Kota/Kabupaten:</span> <span className="font-bold text-gray-900">{kotaKabupaten}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Jenis BBM:</span> <span className="font-bold text-gray-900">{jenis}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Volume:</span> <span className="font-bold text-gray-900">{volume} L</span></div>
+                  <div className="flex justify-between pb-2 pt-1"><span className="text-gray-500 font-medium">Total Bayar:</span> <span className="font-black text-blue-600 text-lg">Rp {totalBayar}</span></div>
+                </div>
+              )}
+              {activeTab === 'KILOMETER' && (
+                <div className="space-y-3.5 text-sm">
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">ID Unit:</span> <span className="font-bold text-gray-900">{kmIdUnit}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Tanggal:</span> <span className="font-bold text-gray-900">{kmTanggal}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">KM Awal:</span> <span className="font-bold text-gray-900">{kmAwal} KM</span></div>
+                  <div className="flex justify-between pb-2"><span className="text-gray-500">KM Akhir:</span> <span className="font-bold text-gray-900">{kmAkhir} KM</span></div>
+                  <div className="p-3 bg-blue-50 rounded-xl mt-4">
+                    <p className="text-xs text-blue-700 text-center font-medium">Total KM akan dihitung secara otomatis oleh sistem (KM Akhir - KM Awal).</p>
+                  </div>
+                </div>
+              )}
+              {activeTab === 'PENGANTARAN' && (
+                <div className="space-y-3.5 text-sm">
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">ID Unit:</span> <span className="font-bold text-gray-900">{pengIdUnit}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Tanggal:</span> <span className="font-bold text-gray-900">{pengTanggal}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Trip:</span> <span className="font-bold text-gray-900">{pengTrip}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Waktu Loading:</span> <span className="font-bold text-gray-900">{pengStartLoading} - {pengEndLoading}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Sukses Kirim:</span> <span className="font-bold text-green-600">{pengSuksesKirim}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Gagal Kirim:</span> <span className="font-bold text-red-600">{pengGagalKirim}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2"><span className="text-gray-500">Total Pengantaran:</span> <span className="font-bold text-blue-600">{(parseInt(pengSuksesKirim || '0') + parseInt(pengGagalKirim || '0')) || 0}</span></div>
+                  <div className="flex justify-between border-b border-gray-100 pb-2 pt-1"><span className="text-gray-500 font-medium">Omset:</span> <span className="font-black text-blue-600 text-lg">Rp {pengOmset}</span></div>
+                  {pengCatatan && <div className="flex justify-between pb-2"><span className="text-gray-500">Catatan:</span> <span className="font-bold text-gray-900 text-right max-w-[60%]">{pengCatatan}</span></div>}
+                </div>
+              )}
+            </div>
+
+            <div className="p-5 bg-gray-50 flex gap-3 border-t border-gray-100">
+              <button 
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 hover:text-gray-800 transition-all active:scale-[0.98]"
+              >
+                Cek Lagi
+              </button>
+              <button 
+                onClick={executeSubmit}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98]"
+              >
+                Sudah Benar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
