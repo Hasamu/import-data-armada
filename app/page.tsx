@@ -324,7 +324,9 @@ export default function DriverPage() {
               <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-green-500/20 relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-20 rounded-full blur-xl"></div>
                 <div className="relative z-10 flex flex-col items-center justify-center">
-                  <span className="text-xl sm:text-2xl mb-1">✅</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-8 h-8 sm:w-10 sm:h-10 mb-1 text-green-100 drop-shadow-md">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
                   <span className="font-medium text-green-100 text-[10px] sm:text-xs mb-1 uppercase tracking-wide text-center">Sukses Kirim Hari Ini</span>
                   {loadingProgress ? (
                     <div className="animate-pulse h-8 w-12 bg-green-400/50 rounded mt-1"></div>
@@ -340,7 +342,9 @@ export default function DriverPage() {
               <div className="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-red-500/20 relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-20 rounded-full blur-xl"></div>
                 <div className="relative z-10 flex flex-col items-center justify-center">
-                  <span className="text-xl sm:text-2xl mb-1">❌</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-8 h-8 sm:w-10 sm:h-10 mb-1 text-red-100 drop-shadow-md">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
                   <span className="font-medium text-red-100 text-[10px] sm:text-xs mb-1 uppercase tracking-wide text-center">Gagal Kirim Hari Ini</span>
                   {loadingProgress ? (
                     <div className="animate-pulse h-8 w-12 bg-red-400/50 rounded mt-1"></div>
