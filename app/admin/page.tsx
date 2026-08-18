@@ -665,30 +665,30 @@ export default function AdminPage() {
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="bg-white text-gray-500 border-b border-gray-100 uppercase text-[10px] font-bold tracking-wider">
+                      <thead className="bg-white text-gray-500 border-b border-gray-100 uppercase text-[9px] sm:text-[10px] font-bold tracking-wider">
                         <tr>
-                          <th className="px-5 py-3">Peringkat</th>
-                          <th className="px-5 py-3">Nama Driver</th>
-                          <th className="px-5 py-3 text-center">Total Trip</th>
-                          <th className="px-5 py-3 text-center">Sukses</th>
-                          <th className="px-5 py-3 text-center">Gagal</th>
-                          <th className="px-5 py-3 text-right">Total Omset</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3 text-center">No</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3">Driver</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3 text-center">Trip</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3 text-center">Sukses</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3 text-center">Gagal</th>
+                          <th className="px-2 py-2 sm:px-5 sm:py-3 text-right">Omset</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-gray-50 text-xs sm:text-sm">
                         {leaderboard.length === 0 && (
-                          <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">Belum ada data pengantaran</td></tr>
+                          <tr><td colSpan={6} className="px-2 py-8 sm:px-5 text-center text-gray-400">Belum ada data pengantaran</td></tr>
                         )}
                         {leaderboard.map((driver: any, idx: number) => (
                           <tr key={driver.namaDriver} className="hover:bg-blue-50/30 transition-colors">
-                            <td className="px-5 py-3">
-                              {idx === 0 ? <span className="text-xl" title="Juara 1">🥇</span> : idx === 1 ? <span className="text-xl" title="Juara 2">🥈</span> : idx === 2 ? <span className="text-xl" title="Juara 3">🥉</span> : <span className="text-gray-400 font-bold ml-2">#{idx + 1}</span>}
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 text-center">
+                              {idx === 0 ? <span className="text-base sm:text-xl" title="Juara 1">🥇</span> : idx === 1 ? <span className="text-base sm:text-xl" title="Juara 2">🥈</span> : idx === 2 ? <span className="text-base sm:text-xl" title="Juara 3">🥉</span> : <span className="text-gray-400 font-bold">{idx + 1}</span>}
                             </td>
-                            <td className="px-5 py-3 font-bold text-gray-900">{driver.namaDriver}</td>
-                            <td className="px-5 py-3 text-center font-medium text-gray-600">{driver.totalTrip}</td>
-                            <td className="px-5 py-3 text-center font-bold text-green-600">{driver.sukses}</td>
-                            <td className="px-5 py-3 text-center font-bold text-red-500">{driver.gagal}</td>
-                            <td className="px-5 py-3 text-right font-bold text-blue-600 whitespace-nowrap">Rp {driver.omset.toLocaleString('id-ID')}</td>
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 font-bold text-gray-900">{driver.namaDriver}</td>
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 text-center font-medium text-gray-600">{driver.totalTrip}</td>
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 text-center font-bold text-green-600">{driver.sukses}</td>
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 text-center font-bold text-red-500">{driver.gagal}</td>
+                            <td className="px-2 py-2 sm:px-5 sm:py-3 text-right font-bold text-blue-600 whitespace-nowrap">Rp {driver.omset.toLocaleString('id-ID')}</td>
                           </tr>
                         ))}
                       </tbody>
