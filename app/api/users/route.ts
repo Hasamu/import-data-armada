@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { getSession } from '@/lib/auth'
 
 export async function GET() {
   try {
+    const session = await getSession()
+    if (!session || (session.role !== 'ADMIN' && session.role !== 'MANAGEMENT')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const users = await prisma.user.findMany({
       where: { role: 'DRIVER' },
       select: {
