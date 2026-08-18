@@ -646,7 +646,7 @@ export default function AdminPage() {
                           <XAxis dataKey="tanggal" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
                           <YAxis width={65} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(value) => `Rp${value/1000}k`} />
                           <Tooltip 
-                            formatter={(value: any, name: string) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Omset']}
+                            formatter={(value: any, name: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Omset']}
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                           />
                           <Area type="monotone" dataKey="omset" name="omset" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorOmset)" />
