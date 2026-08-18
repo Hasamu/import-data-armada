@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import * as XLSX from 'xlsx'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 interface Report {
   id: string
@@ -47,12 +48,15 @@ export default function AdminPage() {
   const [driverList, setDriverList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeMenu, setActiveMenu] = useState<'BBM' | 'KILOMETER' | 'PENGANTARAN' | 'PENGATURAN'>('BBM')
+  const [activeMenu, setActiveMenu] = useState<'DASHBOARD' | 'BBM' | 'KILOMETER' | 'PENGANTARAN' | 'PENGATURAN'>('DASHBOARD')
   const [newIdUnit, setNewIdUnit] = useState('')
   const [newDriverName, setNewDriverName] = useState('')
   const [newDriverPassword, setNewDriverPassword] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [dateRange, setDateRange] = useState('30_days')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [userRole, setUserRole] = useState('')
   const router = useRouter()
 
   const handleAddArmada = async (e: React.FormEvent) => {
@@ -115,8 +119,52 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session')
+        if (res.ok) {
+          const session = await res.json()
+          setUserRole(session.role || '')
+        }
+      } catch (err) {
+        console.error('Failed to fetch session', err)
+      }
+    }
+    fetchSession()
     fetchData()
   }, [])
+
+  useEffect(() => {
+    const today = new Date()
+    let start = '';
+    let end = today.toISOString().split('T')[0];
+
+    if (dateRange === 'today') {
+      start = end;
+    } else if (dateRange === '7_days') {
+      const d = new Date(today); d.setDate(d.getDate() - 7);
+      start = d.toISOString().split('T')[0];
+    } else if (dateRange === '30_days') {
+      const d = new Date(today); d.setDate(d.getDate() - 30);
+      start = d.toISOString().split('T')[0];
+    } else if (dateRange === 'this_month') {
+      const d = new Date(today.getFullYear(), today.getMonth(), 1);
+      start = d.toISOString().split('T')[0];
+      const dEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      end = dEnd.toISOString().split('T')[0];
+    } else if (dateRange === 'last_month') {
+      const dStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const dEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+      start = dStart.toISOString().split('T')[0];
+      end = dEnd.toISOString().split('T')[0];
+    } else if (dateRange === 'all_time') {
+      start = '';
+      end = '';
+    }
+
+    setStartDate(start);
+    setEndDate(end);
+  }, [dateRange])
 
   const fetchData = async () => {
     try {
@@ -178,6 +226,55 @@ export default function AdminPage() {
   const filteredBbm = bbmReports.filter(r => isWithinDateRange(r.tanggal_bbm))
   const filteredKm = kmReports.filter(r => isWithinDateRange(r.tanggal))
   const filteredPengantaran = pengantaranReports.filter(r => isWithinDateRange(r.tanggal))
+
+  // --- Dashboard Calculations ---
+  const totalOmset = filteredPengantaran.reduce((sum, r) => sum + (Number(r.omset) || 0), 0)
+  const totalBbm = filteredBbm.reduce((sum, r) => sum + (Number(r.total_bayar) || 0), 0)
+  const labaKotor = totalOmset - totalBbm
+  const totalSukses = filteredPengantaran.reduce((sum, r) => sum + (Number(r.suksesKirim) || 0), 0)
+  const totalGagal = filteredPengantaran.reduce((sum, r) => sum + (Number(r.gagalKirim) || 0), 0)
+
+  // Driver Leaderboard
+  const driverStats = filteredPengantaran.reduce((acc: any, r: any) => {
+    if (!acc[r.namaDriver]) {
+      acc[r.namaDriver] = { namaDriver: r.namaDriver, totalTrip: 0, omset: 0, sukses: 0, gagal: 0 }
+    }
+    acc[r.namaDriver].totalTrip += 1
+    acc[r.namaDriver].omset += Number(r.omset) || 0
+    acc[r.namaDriver].sukses += Number(r.suksesKirim) || 0
+    acc[r.namaDriver].gagal += Number(r.gagalKirim) || 0
+    return acc
+  }, {})
+  const leaderboard = Object.values(driverStats).sort((a: any, b: any) => b.omset - a.omset)
+
+  // Chart Data (Group by date)
+  const chartDataRaw = filteredPengantaran.reduce((acc: any, r: any) => {
+    const dateStr = new Date(r.tanggal).toISOString().split('T')[0]
+    if (!acc[dateStr]) {
+      acc[dateStr] = { dateRaw: dateStr, omset: 0, bbm: 0 }
+    }
+    acc[dateStr].omset += Number(r.omset) || 0
+    return acc
+  }, {})
+  
+  // Mix BBM into chart data
+  filteredBbm.forEach((r: any) => {
+    const dateStr = new Date(r.tanggal_bbm).toISOString().split('T')[0]
+    if (!chartDataRaw[dateStr]) {
+      chartDataRaw[dateStr] = { dateRaw: dateStr, omset: 0, bbm: 0 }
+    }
+    chartDataRaw[dateStr].bbm += Number(r.total_bayar) || 0
+  })
+
+  const chartData = Object.values(chartDataRaw)
+    .sort((a: any, b: any) => new Date(a.dateRaw).getTime() - new Date(b.dateRaw).getTime())
+    .map((item: any) => ({
+      tanggal: new Date(item.dateRaw).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+      omset: item.omset,
+      bbm: item.bbm
+    }))
+  // -----------------------------
+
 
   const exportToExcel = () => {
     if (activeMenu === 'BBM') {
@@ -272,10 +369,52 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans relative">
+      
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between bg-white p-4 border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center mr-3 shadow-lg shadow-blue-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-gray-900 tracking-tight leading-tight">Admin Panel</h2>
+            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Laporan Armada</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={handleLogout} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isSidebarOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-30 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <div className="w-full md:w-72 md:min-h-screen bg-white shadow-xl shadow-gray-200/50 flex flex-col z-10 border-b md:border-b-0 md:border-r border-gray-100 md:sticky md:top-0">
-        <div className="p-6 md:p-8 border-b border-gray-100 flex items-center justify-between">
+      <div className={`fixed inset-y-0 left-0 w-72 bg-white shadow-xl shadow-gray-200/50 flex flex-col z-40 border-r border-gray-100 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-72 md:min-h-screen md:sticky md:top-0 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <div className="hidden md:flex p-6 md:p-8 border-b border-gray-100 items-center justify-between">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center mr-3 shadow-lg shadow-blue-500/30">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -287,48 +426,78 @@ export default function AdminPage() {
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-0.5">Laporan Armada</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="md:hidden p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+          <button onClick={handleLogout} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
           </button>
         </div>
-        <nav className="p-4 md:flex-1 md:p-5 flex flex-row overflow-x-auto gap-2 md:flex-col md:space-y-2 whitespace-nowrap scrollbar-hide">
+        
+        {/* Mobile Sidebar Header */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-100">
+           <div className="flex items-center">
+             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center mr-3 shadow-lg shadow-blue-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+             </div>
+             <span className="font-bold text-gray-900">Menu Laporan</span>
+           </div>
+           <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg transition-colors">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+             </svg>
+           </button>
+        </div>
+
+        <nav className="flex-1 p-4 md:p-5 flex flex-col space-y-2 overflow-y-auto scrollbar-hide">
           <p className="hidden md:block px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-2">Menu Laporan</p>
           <button
-            onClick={() => setActiveMenu('BBM')}
+            onClick={() => { setActiveMenu('DASHBOARD'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
-              activeMenu === 'BBM' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              activeMenu === 'DASHBOARD' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
           >
-            <span className="text-lg mr-3">📊</span> Data BBM
+            <span className="text-lg mr-3">📈</span> Ringkasan
           </button>
-          <button
-            onClick={() => setActiveMenu('KILOMETER')}
-            className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
-              activeMenu === 'KILOMETER' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            }`}
-          >
-            <span className="text-lg mr-3">🛣️</span> Data Kilometer
-          </button>
-          <button
-            onClick={() => setActiveMenu('PENGANTARAN')}
-            className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
-              activeMenu === 'PENGANTARAN' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            }`}
-          >
-            <span className="text-lg mr-3">📦</span> Data Pengantaran
-          </button>
-          
-          <p className="hidden md:block px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-8">Konfigurasi</p>
-          <button
-            onClick={() => setActiveMenu('PENGATURAN')}
-            className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
-              activeMenu === 'PENGATURAN' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            }`}
-          >
-            <span className="text-lg mr-3">⚙️</span> Pengaturan Sistem
-          </button>
+          {userRole !== 'MANAGEMENT' && (
+            <>
+              <button
+                onClick={() => { setActiveMenu('BBM'); setIsSidebarOpen(false); }}
+                className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
+                  activeMenu === 'BBM' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span className="text-lg mr-3">📊</span> Data BBM
+              </button>
+              <button
+                onClick={() => { setActiveMenu('KILOMETER'); setIsSidebarOpen(false); }}
+                className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
+                  activeMenu === 'KILOMETER' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span className="text-lg mr-3">🛣️</span> Data Kilometer
+              </button>
+              <button
+                onClick={() => { setActiveMenu('PENGANTARAN'); setIsSidebarOpen(false); }}
+                className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
+                  activeMenu === 'PENGANTARAN' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span className="text-lg mr-3">📦</span> Data Pengantaran
+              </button>
+              
+              <p className="hidden md:block px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 mt-8">Konfigurasi</p>
+              <button
+                onClick={() => { setActiveMenu('PENGATURAN'); setIsSidebarOpen(false); }}
+                className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
+                  activeMenu === 'PENGATURAN' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span className="text-lg mr-3">⚙️</span> Pengaturan Sistem
+              </button>
+            </>
+          )}
         </nav>
         <div className="hidden md:block p-6 border-t border-gray-100 bg-gray-50/50">
           <button 
@@ -354,54 +523,45 @@ export default function AdminPage() {
                 {activeMenu === 'PENGANTARAN' && 'Laporan Data Pengantaran'}
                 {activeMenu === 'PENGATURAN' && 'Pengaturan Sistem'}
               </h1>
-              <p className="text-xs md:text-sm text-gray-500 mt-1">
-                {activeMenu === 'PENGATURAN' ? 'Kelola master data armada dan pengguna sistem.' : 'Kelola dan unduh data laporan operasional.'}
-              </p>
+
             </div>
             
             {activeMenu !== 'PENGATURAN' && (
               <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100 w-full lg:w-auto">
                 <div className="flex items-center gap-2 flex-1 sm:flex-none">
-                  <span className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase w-12 sm:w-auto">Dari</span>
-                  <input 
-                    type="date" 
-                    value={startDate} 
-                    onChange={e => setStartDate(e.target.value)}
-                    className="flex-1 rounded-lg border border-gray-200 text-gray-900 font-semibold px-3 py-2 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white"
-                  />
-                </div>
-                <div className="flex items-center gap-2 flex-1 sm:flex-none">
-                  <span className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase w-12 sm:w-auto">Sampai</span>
-                  <input 
-                    type="date" 
-                    value={endDate} 
-                    onChange={e => setEndDate(e.target.value)}
-                    className="flex-1 rounded-lg border border-gray-200 text-gray-900 font-semibold px-3 py-2 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white"
-                  />
-                </div>
-                {(startDate || endDate) && (
-                  <button
-                    onClick={() => { setStartDate(''); setEndDate(''); }}
-                    className="text-sm text-red-600 hover:text-red-800 font-bold px-2 py-1 transition-colors text-center sm:text-left"
+                  <span className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase w-12 sm:w-auto">Filter</span>
+                  <select
+                    value={dateRange}
+                    onChange={e => setDateRange(e.target.value)}
+                    className="flex-1 rounded-lg border border-gray-200 text-gray-900 font-semibold px-3 py-2 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white min-w-[160px]"
                   >
-                    Reset Filter
-                  </button>
+                    <option value="today">Hari Ini</option>
+                    <option value="7_days">7 Hari Terakhir</option>
+                    <option value="30_days">30 Hari Terakhir</option>
+                    <option value="this_month">Bulan Ini</option>
+                    <option value="last_month">Bulan Lalu</option>
+                    <option value="all_time">Semua Waktu</option>
+                  </select>
+                </div>
+                {activeMenu !== 'DASHBOARD' && (
+                  <>
+                    <div className="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
+                    <button
+                      onClick={exportToExcel}
+                      className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-sm shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2 sm:mt-0 w-full sm:w-auto"
+                      disabled={
+                        (activeMenu === 'BBM' && filteredBbm.length === 0) ||
+                        (activeMenu === 'KILOMETER' && filteredKm.length === 0) ||
+                        (activeMenu === 'PENGANTARAN' && filteredPengantaran.length === 0)
+                      }
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Unduh Excel
+                    </button>
+                  </>
                 )}
-                <div className="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
-                <button
-                  onClick={exportToExcel}
-                  className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-sm shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2 sm:mt-0 w-full sm:w-auto"
-                  disabled={
-                    (activeMenu === 'BBM' && filteredBbm.length === 0) ||
-                    (activeMenu === 'KILOMETER' && filteredKm.length === 0) ||
-                    (activeMenu === 'PENGANTARAN' && filteredPengantaran.length === 0)
-                  }
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Unduh Excel
-                </button>
               </div>
             )}
           </div>
@@ -416,6 +576,128 @@ export default function AdminPage() {
           )}
 
           <div className="p-4 lg:p-8 w-full max-w-full overflow-hidden">
+            {activeMenu === 'DASHBOARD' && (
+              <div className="space-y-6">
+                {/* Dashboard Summaries */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20">
+                    <p className="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">Total Omset</p>
+                    <h3 className="text-3xl font-black">Rp {totalOmset.toLocaleString('id-ID')}</h3>
+                  </div>
+                  <div className="md:col-span-2 bg-white border border-gray-100 rounded-2xl p-5 flex items-center shadow-sm">
+                    <div className="w-28 h-28 relative flex-shrink-0">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Sukses', value: totalSukses },
+                              { name: 'Gagal', value: totalGagal }
+                            ]}
+                            innerRadius={35}
+                            outerRadius={50}
+                            paddingAngle={5}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            <Cell key="cell-0" fill="#10B981" />
+                            <Cell key="cell-1" fill="#EF4444" />
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-sm font-black text-gray-800">{(totalSukses + totalGagal) > 0 ? ((totalSukses / (totalSukses + totalGagal)) * 100).toFixed(0) : 0}%</span>
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase">Rate</span>
+                      </div>
+                    </div>
+                    
+                    <div className="ml-6 flex-1 grid grid-cols-2 gap-4 border-l border-gray-100 pl-6">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500/30"></div>
+                          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Sukses</span>
+                        </div>
+                        <span className="text-2xl font-black text-green-600">{totalSukses} <span className="text-xs font-medium text-gray-400">Outlet</span></span>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/30"></div>
+                          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Gagal</span>
+                        </div>
+                        <span className="text-2xl font-black text-red-600">{totalGagal} <span className="text-xs font-medium text-gray-400">Outlet</span></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Charts */}
+                <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Grafik Performa Harian</h3>
+                  <div className="h-72 w-full">
+                    {chartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorOmset" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                          <XAxis dataKey="tanggal" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
+                          <YAxis width={65} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(value) => `Rp${value/1000}k`} />
+                          <Tooltip 
+                            formatter={(value: any, name: string) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Omset']}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          />
+                          <Area type="monotone" dataKey="omset" name="omset" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorOmset)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400 text-sm">Tidak ada data di rentang tanggal ini</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Driver Leaderboard */}
+                <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+                    <h3 className="text-lg font-bold text-gray-900">Klasemen Performa Driver</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-white text-gray-500 border-b border-gray-100 uppercase text-[10px] font-bold tracking-wider">
+                        <tr>
+                          <th className="px-5 py-3">Peringkat</th>
+                          <th className="px-5 py-3">Nama Driver</th>
+                          <th className="px-5 py-3 text-center">Total Trip</th>
+                          <th className="px-5 py-3 text-center">Sukses</th>
+                          <th className="px-5 py-3 text-center">Gagal</th>
+                          <th className="px-5 py-3 text-right">Total Omset</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {leaderboard.length === 0 && (
+                          <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">Belum ada data pengantaran</td></tr>
+                        )}
+                        {leaderboard.map((driver: any, idx: number) => (
+                          <tr key={driver.namaDriver} className="hover:bg-blue-50/30 transition-colors">
+                            <td className="px-5 py-3">
+                              {idx === 0 ? <span className="text-xl" title="Juara 1">🥇</span> : idx === 1 ? <span className="text-xl" title="Juara 2">🥈</span> : idx === 2 ? <span className="text-xl" title="Juara 3">🥉</span> : <span className="text-gray-400 font-bold ml-2">#{idx + 1}</span>}
+                            </td>
+                            <td className="px-5 py-3 font-bold text-gray-900">{driver.namaDriver}</td>
+                            <td className="px-5 py-3 text-center font-medium text-gray-600">{driver.totalTrip}</td>
+                            <td className="px-5 py-3 text-center font-bold text-green-600">{driver.sukses}</td>
+                            <td className="px-5 py-3 text-center font-bold text-red-500">{driver.gagal}</td>
+                            <td className="px-5 py-3 text-right font-bold text-blue-600 whitespace-nowrap">Rp {driver.omset.toLocaleString('id-ID')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeMenu === 'BBM' || activeMenu === 'KILOMETER' ? (
               <div className="overflow-x-auto w-full rounded-xl border border-gray-200 shadow-sm relative">
                 <table className="w-full text-left text-sm text-gray-600 border-collapse min-w-max">

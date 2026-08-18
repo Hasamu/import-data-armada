@@ -20,7 +20,7 @@ export default function LoginPage() {
       })
       if (res.ok) {
         const data = await res.json()
-        if (data.role === 'ADMIN') {
+        if (data.role === 'ADMIN' || data.role === 'MANAGEMENT') {
           router.push('/admin')
         } else {
           router.push('/')
