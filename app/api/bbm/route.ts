@@ -41,6 +41,7 @@ export async function POST(req: Request) {
         jenis,
         liter: Number(volume),
         total_bayar: Number(totalBayar),
+        submittedBy: session.username,
       },
     })
 

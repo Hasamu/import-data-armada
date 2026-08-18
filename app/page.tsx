@@ -2,9 +2,34 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip } from 'recharts'
 
 export default function DriverPage() {
   const [activeTab, setActiveTab] = useState<'BBM' | 'KILOMETER' | 'PENGANTARAN'>('BBM')
+  
+  // Progress State
+  const [progressData, setProgressData] = useState<any>(null)
+  const [loadingProgress, setLoadingProgress] = useState(false)
+
+  const fetchProgress = async () => {
+    setLoadingProgress(true)
+    try {
+      // Tambahkan parameter timestamp (t) untuk mem-bypass cache browser Next.js
+      const res = await fetch(`/api/driver/progress?t=${Date.now()}`)
+      if (res.ok) {
+        const data = await res.json()
+        setProgressData(data)
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingProgress(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProgress()
+  }, [])
   
   // States for BBM Form
   const [idUnit, setIdUnit] = useState('')
@@ -99,6 +124,7 @@ export default function DriverPage() {
         setJenis('Bio Solar')
         setVolume('')
         setTotalBayar('')
+        fetchProgress()
       } else {
         setError(data.error || 'Gagal mengirim laporan')
         if (res.status === 401) router.push('/login')
@@ -135,6 +161,7 @@ export default function DriverPage() {
         setKmTanggal('')
         setKmAwal('')
         setKmAkhir('')
+        fetchProgress()
       } else {
         setError(data.error || 'Gagal mengirim laporan')
         if (res.status === 401) router.push('/login')
@@ -181,6 +208,7 @@ export default function DriverPage() {
         setPengGagalKirim('')
         setPengOmset('')
         setPengCatatan('')
+        fetchProgress()
       } else {
         setError('Gagal mengirim laporan')
       }
@@ -227,6 +255,11 @@ export default function DriverPage() {
               <div>
                 <h1 className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">ArmadaKita</h1>
                 <p className="text-sm font-bold text-gray-500 mt-0.5">Laporan Harian Driver</p>
+                {progressData?.driverName && (
+                  <p className="text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                    Halo, {progressData.driverName} 👋
+                  </p>
+                )}
               </div>
             </div>
             <button 
@@ -240,6 +273,88 @@ export default function DriverPage() {
             </button>
           </div>
           
+          {/* PROGRESS BLOCK (Top) */}
+          <div className="px-6 sm:px-8 pb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Performa Terkini</h2>
+              <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">Bulan Ini: Rp {progressData?.pengantaran?.omset?.toLocaleString('id-ID') || 0}</span>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-0 mb-4 text-white shadow-lg shadow-blue-500/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+              
+              <div className="relative z-10 pt-6 pb-2 px-6 flex flex-col items-center justify-center">
+                <span className="font-semibold text-blue-200 mb-1 text-xs tracking-widest uppercase">Omset Hari Ini</span>
+                {loadingProgress ? (
+                  <div className="animate-pulse h-10 w-40 bg-blue-400/50 rounded-lg mt-1"></div>
+                ) : (
+                  <span className="font-black text-4xl mt-1 tracking-tight">Rp {progressData?.pengantaran?.hariIni?.omset?.toLocaleString('id-ID') || 0}</span>
+                )}
+              </div>
+              
+              {/* Tren 7 Hari Chart */}
+              <div className="h-24 w-full mt-2 relative z-10 opacity-90">
+                {progressData?.trendMingguan && progressData.trendMingguan.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={progressData.trendMingguan} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorOmset" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#93C5FD" stopOpacity={0.6}/>
+                          <stop offset="95%" stopColor="#93C5FD" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <Tooltip 
+                        formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Omset']}
+                        labelFormatter={(label) => `${label}`}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ color: '#1E40AF', fontWeight: 'bold' }}
+                        labelStyle={{ color: '#6B7280', fontSize: '12px', marginBottom: '4px' }}
+                      />
+                      <Area type="monotone" dataKey="omset" stroke="#BFDBFE" strokeWidth={3} fillOpacity={1} fill="url(#colorOmset)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-blue-300 text-xs font-medium">Memuat data tren...</div>
+                )}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-green-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-20 rounded-full blur-xl"></div>
+                <div className="relative z-10 flex flex-col items-center justify-center">
+                  <span className="text-xl sm:text-2xl mb-1">✅</span>
+                  <span className="font-medium text-green-100 text-[10px] sm:text-xs mb-1 uppercase tracking-wide text-center">Sukses Kirim Hari Ini</span>
+                  {loadingProgress ? (
+                    <div className="animate-pulse h-8 w-12 bg-green-400/50 rounded mt-1"></div>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <span className="font-black text-3xl">{progressData?.pengantaran?.hariIni?.sukses || 0}</span>
+                      <span className="text-[10px] text-green-100 mt-1">Total Bulan: {progressData?.pengantaran?.sukses || 0}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-red-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-20 rounded-full blur-xl"></div>
+                <div className="relative z-10 flex flex-col items-center justify-center">
+                  <span className="text-xl sm:text-2xl mb-1">❌</span>
+                  <span className="font-medium text-red-100 text-[10px] sm:text-xs mb-1 uppercase tracking-wide text-center">Gagal Kirim Hari Ini</span>
+                  {loadingProgress ? (
+                    <div className="animate-pulse h-8 w-12 bg-red-400/50 rounded mt-1"></div>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <span className="font-black text-3xl">{progressData?.pengantaran?.hariIni?.gagal || 0}</span>
+                      <span className="text-[10px] text-red-100 mt-1">Total Bulan: {progressData?.pengantaran?.gagal || 0}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="px-6 sm:px-8 pb-6">
             <div className="flex p-1.5 space-x-1 bg-gray-100/80 rounded-2xl overflow-x-auto hide-scrollbar border border-gray-200/50">
               <button 

@@ -52,6 +52,7 @@ model BbmReport {
   liter          Float
   total_bayar    Int
   waktu_upload   DateTime @default(now())
+  submittedBy    String?
 }
 
 model PengantaranReport {
