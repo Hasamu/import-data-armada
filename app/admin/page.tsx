@@ -48,7 +48,7 @@ export default function AdminPage() {
   const [driverList, setDriverList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeMenu, setActiveMenu] = useState<'DASHBOARD' | 'BBM' | 'KILOMETER' | 'PENGANTARAN' | 'PENGATURAN'>('DASHBOARD')
+  const [activeMenu, setActiveMenu] = useState<'DASHBOARD' | 'BBM' | 'KILOMETER' | 'PENGANTARAN' | 'STATUS_DRIVER' | 'PENGATURAN'>('DASHBOARD')
   const [newIdUnit, setNewIdUnit] = useState('')
   const [newDriverName, setNewDriverName] = useState('')
   const [newDriverPassword, setNewDriverPassword] = useState('')
@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState('30_days')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [userRole, setUserRole] = useState('')
+  const [statusDriverDate, setStatusDriverDate] = useState(() => new Date().toISOString().split('T')[0])
   const router = useRouter()
 
   const handleAddArmada = async (e: React.FormEvent) => {
@@ -246,6 +247,16 @@ export default function AdminPage() {
     return acc
   }, {})
   const leaderboard = Object.values(driverStats).sort((a: any, b: any) => b.omset - a.omset)
+
+  // Driver yang belum laporan (berdasarkan statusDriverDate)
+  const pengantaranOnDate = pengantaranReports.filter((r: any) => {
+    const rDate = new Date(r.tanggal)
+    return !isNaN(rDate.getTime()) && rDate.toISOString().split('T')[0] === statusDriverDate
+  })
+  const submittedDriverUsernames = new Set(pengantaranOnDate.map((r: any) => r.submittedBy || r.namaDriver))
+  const allDrivers = driverList.filter((u: any) => u.role !== 'ADMIN' && u.role !== 'MANAGEMENT')
+  const unsubmittedDrivers = allDrivers.filter((u: any) => !submittedDriverUsernames.has(u.username))
+
 
   // Chart Data (Group by date)
   const chartDataRaw = filteredPengantaran.reduce((acc: any, r: any) => {
@@ -460,6 +471,18 @@ export default function AdminPage() {
           >
             <span className="text-lg mr-3">📈</span> Ringkasan
           </button>
+          
+          {userRole === 'ADMIN' && (
+            <button
+              onClick={() => { setActiveMenu('STATUS_DRIVER'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl transition-all ${
+                activeMenu === 'STATUS_DRIVER' ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <span className="text-lg mr-3">🚨</span> Status Laporan
+            </button>
+          )}
+
           {userRole !== 'MANAGEMENT' && (
             <>
               <button
@@ -657,6 +680,8 @@ export default function AdminPage() {
                     )}
                   </div>
                 </div>
+
+
 
                 {/* Driver Leaderboard */}
                 <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
@@ -935,6 +960,51 @@ export default function AdminPage() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </div>
+            )}
+            {activeMenu === 'STATUS_DRIVER' && userRole === 'ADMIN' && (
+              <div className="max-w-4xl mx-auto space-y-6">
+                <div className="bg-red-50 border border-red-100 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="p-4 sm:p-5 border-b border-red-100 bg-red-100/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex flex-col">
+                      <h3 className="text-sm sm:text-lg font-bold text-red-900">🚨 Driver Belum Laporan Pengantaran</h3>
+                      <span className="text-xs text-red-700 mt-1 font-medium">Cek status berdasarkan tanggal</span>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <input 
+                        type="date"
+                        value={statusDriverDate}
+                        onChange={(e) => setStatusDriverDate(e.target.value)}
+                        className="flex-1 sm:flex-none rounded-lg border border-red-200 text-red-900 font-semibold px-3 py-1.5 text-sm outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 bg-white"
+                      />
+                      <span className="bg-red-200 text-red-800 text-xs font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap">{unsubmittedDrivers.length} Orang</span>
+                    </div>
+                  </div>
+                  <div className="p-4 sm:p-5">
+                    {unsubmittedDrivers.length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {unsubmittedDrivers.map((driver: any) => (
+                          <div key={driver.username} className="flex flex-col items-center justify-center p-3 bg-white border border-red-200 rounded-xl shadow-sm text-center">
+                            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mb-2">
+                              <span className="text-lg">👤</span>
+                            </div>
+                            <span className="text-red-700 font-bold text-sm truncate w-full">{driver.username}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-10">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <h4 className="text-lg font-bold text-green-800 mb-1">Mantap!</h4>
+                        <p className="text-sm text-green-600 font-medium text-center">Semua driver sudah mengirimkan laporan pengantaran pada tanggal ini.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
